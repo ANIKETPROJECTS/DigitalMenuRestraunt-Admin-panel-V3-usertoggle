@@ -85,18 +85,11 @@ export default function MenuManagement() {
     queryKey: [`/api/admin/restaurants/${restaurantId}`],
     queryFn: async () => {
       const token = localStorage.getItem("adminToken");
-      console.log('🔍 Fetching restaurant with ID:', restaurantId);
-      console.log('🔑 Using token:', token ? 'Present' : 'Missing');
-      
       const result = await apiRequest(`/api/admin/restaurants/${restaurantId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      console.log('🏪 Restaurant data fetched:', result);
-      console.log('📂 Restaurant categories:', result?.customTypes);
-      
       return result;
     },
     enabled: !!restaurantId,
@@ -104,12 +97,6 @@ export default function MenuManagement() {
     staleTime: 0,
   });
   
-  if (restaurantError) {
-    console.error('❌ Restaurant fetch error:', restaurantError);
-  }
-  if (restaurantLoading) {
-    console.log('⏳ Restaurant data loading...');
-  }
   
   const { data: menuItems, isLoading } = useQuery({
     queryKey: [`/api/admin/restaurants/${restaurantId}/menu-items`],
@@ -120,29 +107,6 @@ export default function MenuManagement() {
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      console.log('🎯 Menu items fetched successfully:', result);
-      console.log('📊 Total items:', result?.length || 0);
-      
-      // Debug menu item categories with focus on pot rice items
-      if (result && result.length > 0) {
-        console.log('📋 All Menu item categories:', result.map((item: MenuItem) => ({
-          name: item.name,
-          category: item.category,
-          normalized: normalizeCategory(item.category)
-        })));
-        
-        // Special debug for pot rice items
-        const potRiceItems = result.filter((item: MenuItem) => item.name && item.name.toLowerCase().includes('pot rice'));
-        if (potRiceItems.length > 0) {
-          console.log('🍚 POT RICE ITEMS DEBUG:', potRiceItems.map((item: MenuItem) => ({
-            name: item.name,
-            category: item.category,
-            originalCollection: (item as any).originalCollection
-          })));
-        }
-      }
-      
       return result;
     },
     enabled: !!restaurantId,
@@ -150,16 +114,11 @@ export default function MenuManagement() {
     staleTime: 30000
   });
 
-  console.log('🏪 Restaurant data:', restaurant);
-  console.log('📂 Restaurant customTypes:', restaurant?.customTypes);
-  console.log('🔗 Restaurant mongoUri:', restaurant?.mongoUri);
-  console.log('📊 Menu items available:', !!menuItems, menuItems?.length || 0);
   
   let categories = ["Starters", "Main Course", "Desserts", "Beverages"];
   
   if (restaurant?.customTypes && restaurant.customTypes.length > 0) {
     categories = restaurant.customTypes;
-    console.log('✅ Using restaurant customTypes:', categories);
   }
   // else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
   //   // Fixed: Use Array.from() to convert Set to Array
@@ -203,12 +162,8 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
   
   if (extractedCategories.length > 0) {
     categories = extractedCategories;
-    console.log('🔄 Using categories extracted from menu items:', categories);
   }
 }
-
-  console.log('📋 Final categories being used:', categories);
-  console.log('📋 Normalized categories:', categories.map(cat => normalizeCategory(cat)));
 
   const mutation = useMutation({
     mutationFn: async (data: typeof formData) => {
@@ -358,6 +313,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
         const token = localStorage.getItem("adminToken");
         const uploadFormData = new FormData();
         uploadFormData.append('image', imageFile);
+        uploadFormData.append('restaurantId', restaurantId || '');
         
         const response = await fetch('/api/admin/upload-image', {
           method: 'POST',
