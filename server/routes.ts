@@ -124,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         admin = await Promise.race([
           Admin.findOne({ username }),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("MongoDB timeout")), 1000)
+            setTimeout(() => reject(new Error("MongoDB timeout")), 5000)
           )
         ]);
         
@@ -209,7 +209,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const restaurants = await Promise.race([
           Restaurant.find().sort({ createdAt: -1 }),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("MongoDB timeout")), 1000)
+            setTimeout(() => reject(new Error("MongoDB timeout")), 5000)
           )
         ]);
         res.json(restaurants);
@@ -235,7 +235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const restaurant = await Promise.race([
           restaurantPromise,
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("MongoDB timeout")), 1000)
+            setTimeout(() => reject(new Error("MongoDB timeout")), 5000)
           )
         ]);
         
@@ -599,7 +599,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const restaurant = await Promise.race([
           deletePromise,
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("MongoDB timeout")), 1000)
+            setTimeout(() => reject(new Error("MongoDB timeout")), 5000)
           )
         ]);
         
@@ -634,7 +634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         restaurant = await Promise.race([
           Restaurant.findById(restaurantId),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("MongoDB timeout")), 1000)
+            setTimeout(() => reject(new Error("MongoDB timeout")), 5000)
           )
         ]);
       } catch (mongoError) {
@@ -721,7 +721,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         restaurant = await Promise.race([
           Restaurant.findById(restaurantId),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("MongoDB timeout")), 1000)
+            setTimeout(() => reject(new Error("MongoDB timeout")), 5000)
           )
         ]);
       } catch (mongoError) {
