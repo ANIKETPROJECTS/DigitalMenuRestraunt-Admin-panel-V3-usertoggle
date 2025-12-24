@@ -386,15 +386,6 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 1 * 1024 * 1024) { // 1MB limit
-        toast({
-          title: "Error",
-          description: "Image size should be less than 1MB",
-          variant: "destructive",
-        });
-        return;
-      }
-
       if (!file.type.startsWith('image/')) {
         toast({
           title: "Error", 
