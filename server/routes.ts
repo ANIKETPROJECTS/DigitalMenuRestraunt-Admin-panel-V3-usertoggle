@@ -1210,14 +1210,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No image file uploaded" });
       }
 
-      // Validate file type
-      if (!file.mimetype.startsWith('image/')) {
+      // Validate file type - accept standard images and raw formats
+      const isImageFile = file.mimetype.startsWith('image/');
+      const rawFormats = ['.arw', '.cr2', '.nef', '.raf', '.rw2', '.dng', '.raw'];
+      const isRawFormat = rawFormats.some(ext => file.originalname.toLowerCase().endsWith(ext));
+      
+      if (!isImageFile && !isRawFormat) {
         return res.status(400).json({ message: "Only image files are allowed" });
-      }
-
-      // Validate file size (1MB max)
-      if (file.size > 1 * 1024 * 1024) {
-        return res.status(400).json({ message: "Image size must be less than 1MB" });
       }
 
       // Generate unique filename
