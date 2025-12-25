@@ -292,13 +292,13 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
   };
 
   const handleDialogClose = (open: boolean) => {
-    if (!open) {
-      // Restore scroll position when closing dialog
-      setTimeout(() => {
-        window.scrollTo({ top: scrollPosition, behavior: 'auto' });
-      }, 0);
-    }
     setIsDialogOpen(open);
+    // Restore scroll position when closing dialog - wait for Dialog animation to complete
+    if (!open && scrollPosition > 0) {
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 300);
+    }
   };
 
   const handleDelete = (itemId: string) => {
