@@ -193,7 +193,12 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
         description: `Menu item ${editingItem ? "updated" : "created"} successfully`,
       });
       queryClient.invalidateQueries({ queryKey: [`/api/admin/restaurants/${restaurantId}/menu-items`] });
-      handleDialogClose(false);
+      // Restore scroll before closing dialog
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPosition);
+      setIsDialogOpen(false);
       resetForm();
     },
     onError: (error: any) => {
@@ -276,6 +281,12 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
 
   const handleEdit = (item: MenuItem) => {
     setScrollPosition(window.scrollY);
+    // Prevent scroll reset by adding scroll position to body style
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.top = `-${scrollY}px`;
+    
     setEditingItem(item);
     setFormData({
       name: item.name,
@@ -292,13 +303,14 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
   };
 
   const handleDialogClose = (open: boolean) => {
-    setIsDialogOpen(open);
-    // Restore scroll position when closing dialog - wait for Dialog animation to complete
-    if (!open && scrollPosition > 0) {
-      setTimeout(() => {
-        window.scrollTo(0, scrollPosition);
-      }, 300);
+    if (!open) {
+      // Restore scroll position by removing fixed positioning
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPosition);
     }
+    setIsDialogOpen(open);
   };
 
   const handleDelete = (itemId: string) => {
