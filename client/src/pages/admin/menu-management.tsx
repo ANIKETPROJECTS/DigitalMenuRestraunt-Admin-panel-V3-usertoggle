@@ -508,7 +508,7 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
                           value={formData.price}
                           onChange={(e) => handleInputChange("price", e.target.value)}
                           className="bg-gray-50 border-gray-200 text-gray-900 focus:border-blue-500"
-                          placeholder="Enter price in rupees"
+                          placeholder="Enter price (e.g. 567 or 45 | 76)"
                           required
                         />
                       </div>

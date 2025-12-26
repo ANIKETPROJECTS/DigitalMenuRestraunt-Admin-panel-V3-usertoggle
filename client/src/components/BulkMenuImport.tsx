@@ -519,7 +519,7 @@ export function BulkMenuImport({ restaurantId, isOpen, onClose, onSuccess }: Bul
                         <div className="space-y-1">
                           <div><strong>Name:</strong> Menu item name (required)</div>
                           <div><strong>Description:</strong> Item description (required)</div>
-                          <div><strong>Price:</strong> Price as number (required)</div>
+                          <div><strong>Price:</strong> Price as string (required)</div>
                           <div><strong>Category:</strong> Must match restaurant categories (required)</div>
                         </div>
                         <div className="space-y-1">
