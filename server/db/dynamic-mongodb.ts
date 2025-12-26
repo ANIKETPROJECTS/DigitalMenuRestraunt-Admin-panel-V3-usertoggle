@@ -186,9 +186,8 @@ export function getMenuItemModel(connection: mongoose.Connection) {
       required: true
     },
     price: {
-      type: Number,
+      type: String,
       required: true,
-      min: 0
     },
     category: {
       type: String,

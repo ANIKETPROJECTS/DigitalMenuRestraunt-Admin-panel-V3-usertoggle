@@ -1113,7 +1113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Validate required fields
           const name = row.Name || row.name;
           const description = row.Description || row.description;
-          const price = parseFloat(row.Price || row.price);
+          const price = row.Price ? String(row.Price) : (row.price ? String(row.price) : '0');
           const category = row.Category || row.category;
           const isVeg = row.IsVeg === true || row.IsVeg === 'TRUE' || row.IsVeg === 'true' || row.isVeg === true;
           const image = row.Image || row.image || 'https://via.placeholder.com/300x200?text=Menu+Item';
