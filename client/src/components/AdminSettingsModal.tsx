@@ -52,6 +52,10 @@ export default function AdminSettingsModal({ isOpen, onOpenChange }: AdminSettin
   const [activeTab, setActiveTab] = useState("profile");
   const { theme: globalTheme, darkMode: globalDarkMode, setTheme: setGlobalTheme, setDarkMode: setGlobalDarkMode } = useTheme();
   
+  // Check if user is Master Admin
+  const adminUser = JSON.parse(localStorage.getItem("adminUser") || "{}");
+  const isMaster = adminUser.role === 'master' || adminUser.username === 'admin' || adminUser.username?.toLowerCase() === 'admin';
+  
   // Profile settings
   const [profileData, setProfileData] = useState({
     username: "",
@@ -398,7 +402,7 @@ export default function AdminSettingsModal({ isOpen, onOpenChange }: AdminSettin
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className={`grid w-full ${isMaster ? 'grid-cols-4' : 'grid-cols-2'}`}>
             <TabsTrigger value="profile" className="flex items-center space-x-2">
               <User className="w-4 h-4" />
               <span>Profile</span>
@@ -407,6 +411,8 @@ export default function AdminSettingsModal({ isOpen, onOpenChange }: AdminSettin
               <Palette className="w-4 h-4" />
               <span>Theme</span>
             </TabsTrigger>
+            {isMaster && (
+            <>
             <TabsTrigger value="security" className="flex items-center space-x-2">
               <Shield className="w-4 h-4" />
               <span>Security</span>
@@ -415,6 +421,8 @@ export default function AdminSettingsModal({ isOpen, onOpenChange }: AdminSettin
               <Database className="w-4 h-4" />
               <span>System</span>
             </TabsTrigger>
+            </>
+            )}
           </TabsList>
 
           <TabsContent value="profile" className="space-y-4">
@@ -553,6 +561,7 @@ export default function AdminSettingsModal({ isOpen, onOpenChange }: AdminSettin
             </Card>
           </TabsContent>
 
+          {isMaster && (
           <TabsContent value="security" className="space-y-4">
             <Card>
               <CardHeader>
@@ -610,7 +619,9 @@ export default function AdminSettingsModal({ isOpen, onOpenChange }: AdminSettin
               </CardContent>
             </Card>
           </TabsContent>
+          )}
 
+          {isMaster && (
           <TabsContent value="system" className="space-y-4">
             <Card>
               <CardHeader>
@@ -681,6 +692,7 @@ export default function AdminSettingsModal({ isOpen, onOpenChange }: AdminSettin
               </CardContent>
             </Card>
           </TabsContent>
+          )}
         </Tabs>
       </DialogContent>
     </Dialog>

@@ -1,77 +1,29 @@
 [x] 1. Install the required packages
 [x] 2. Restart the workflow to see if the project is working
 [x] 3. Verify the project is working using the feedback tool
-[x] 4. Inform user the import is completed and they can start building, mark the import as completed using the complete_project_import tool
+[x] 4. Inform user the import is completed and they can start building
 [x] 5. Answered user question about image storage location and base64 implementation
-[x] 6. Fixed image storage approach - base64 embedded directly in menu item:
-    - Modified POST /api/admin/upload-image to return base64 string (not store separately)
-    - Returns: { success, base64: "data:image/jpeg;base64,...", mimeType }
-[x] 7. Fixed frontend to save base64 directly:
-    - Modified menu-management.tsx line 332 to use result.base64
-    - Frontend now saves base64 string in item.image field
-    - Result: Menu item document has image: "data:image/jpeg;base64,..." (direct embed)
+[x] 6. Fixed image storage approach - base64 embedded directly in menu item
+[x] 7. Fixed frontend to save base64 directly
 [x] 8. Workflow restarted and verified running successfully
 [x] 9. Import completed - project migrated successfully
 [x] 10. Re-installed cross-env package and verified application working
 [x] 11. Created Admin and Master Admin tabs in login page
-[x] 12. Updated login logic to handle different roles if needed
+[x] 12. Updated login logic to handle different roles
 [x] 13. Restarted workflow and verified changes
-[x] 14. Added Admin Users section to Master Admin dashboard:
-    - Added useQuery to fetch admin users from /api/admin/users
-    - Displays admin users (like Aniket) in card grid format
-    - Shows username, email, role badge, and assigned restaurant
-    - Only visible to Master Admin users
-    - Updated loading state to include usersLoading
-    - Workflow restarted and verified - Admin Users section is now working
-[x] 15. Added CRUD operations for Admin Users:
-    - Edit: Modal to update email and assigned restaurant (username read-only)
-    - Delete: Confirmation dialog with delete mutation
-    - Added Edit and Delete buttons to each admin user card
-    - Mutations: editUserMutation (PATCH) and deleteUserMutation (DELETE)
-    - Query invalidation on success for real-time updates
-    - Workflow restarted and verified - CRUD operations working
-[x] 16. Fixed SelectItem error in Edit User Dialog:
-    - Changed empty string value to "unassigned" 
-    - Radix UI Select doesn't allow empty string values
-    - Now shows "No Restaurant" label with "unassigned" value
-    - Converts back to empty string when saving
-    - Workflow restarted and verified - no console errors
-[x] 17. Added missing PATCH and DELETE backend endpoints for users:
-    - Added PATCH /api/admin/users/:id endpoint to update user email and assignedRestaurant
-    - Added DELETE /api/admin/users/:id endpoint to delete users
-    - Both endpoints require Master Admin authentication
-    - Proper error handling and validation on both endpoints
-    - Returns updated/deleted user in response
-    - Workflow restarted - backend endpoints now functional
-[x] 18. Enhanced Edit User Dialog with full editable fields:
-    - Changed Username from read-only to editable field
-    - Added Password field for updating login credentials
-    - Password field shows "Leave empty to keep current" placeholder
-    - Updated backend PATCH endpoint to handle username and password updates
-    - Password is hashed before storing in database using bcrypt
-    - Frontend mutation now sends username, email, password (optional), and assignedRestaurant
-    - Workflow restarted and verified - all fields fully editable
-[x] 19. Fixed "Unknown" restaurant display issue:
-    - Problem: After populate() in backend, assignedRestaurant becomes an object with restaurant details
-    - Display code was trying to match object against ID array, which always failed
-    - Fixed display logic: now checks if assignedRestaurant is object and shows name directly
-    - Fixed edit modal Select to handle both object and string ID formats
-    - Updated display: {typeof user.assignedRestaurant === 'object' ? user.assignedRestaurant?.name : 'Unknown'}
-    - Now correctly shows restaurant name from database instead of "Unknown"
-    - Workflow restarted and verified
-[x] 20. Re-installed cross-env package after session restart - application running successfully
-[x] 21. Added toggle to switch between Admin Users and Restaurants views:
-    - Added state: currentView ('users' or 'restaurants', default 'restaurants')
-    - Added toggle buttons after statistics cards (visible only to Master Admin)
-    - Admin Users section now only shows when currentView === 'users'
-    - Restaurants section now only shows when currentView === 'restaurants'
-    - Toggle buttons highlight the active view with blue background
-    - Workflow restarted and verified - toggle is working
-[x] 22. Restricted restaurant visibility for non-Master Admin users:
-    - Backend already filters restaurants: Master admins see all, non-masters see only assigned restaurant
-    - Updated statistics cards: Master admins see "Total Restaurants" + "Active Restaurants", non-masters see "Your Restaurant"
-    - Updated restaurant section heading: Master admins see "Restaurants", non-masters see "Your Restaurant"
-    - Hidden "Active Restaurants" card for non-Master admins
-    - Hidden "Add User" button for non-Master admins (only Master admins can add users)
-    - Restaurants section visibility: Master admins see when toggle is on 'restaurants', non-masters always see it
-    - Workflow restarted successfully - non-Master users now see only their assigned restaurant
+[x] 14. Added Admin Users section to Master Admin dashboard
+[x] 15. Added CRUD operations for Admin Users
+[x] 16. Fixed SelectItem error in Edit User Dialog
+[x] 17. Added missing PATCH and DELETE backend endpoints for users
+[x] 18. Enhanced Edit User Dialog with full editable fields
+[x] 19. Fixed "Unknown" restaurant display issue
+[x] 20. Re-installed cross-env package after session restart
+[x] 21. Added toggle to switch between Admin Users and Restaurants views
+[x] 22. Restricted restaurant visibility for non-Master Admin users
+[x] 23. Limited Admin Settings to Profile and Theme tabs for non-Master admins:
+    - Added isMaster check in AdminSettingsModal component
+    - Security and System tabs now hidden for non-Master admin users
+    - TabsList grid changes from 4 columns to 2 columns for non-Masters
+    - Only Profile and Theme tabs visible for non-Master admins
+    - Master admins continue to see all 4 tabs: Profile, Theme, Security, System
+    - Workflow restarted and verified - Settings modal now role-aware
