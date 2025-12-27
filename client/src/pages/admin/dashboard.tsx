@@ -382,7 +382,7 @@ export default function AdminDashboard() {
                   <SelectValue placeholder="Select a restaurant" />
                 </SelectTrigger>
                 <SelectContent>
-                  {restaurants?.map(r => (
+                  {restaurants?.map((r: any) => (
                     <SelectItem key={r._id} value={r._id}>{r.name}</SelectItem>
                   ))}
                 </SelectContent>

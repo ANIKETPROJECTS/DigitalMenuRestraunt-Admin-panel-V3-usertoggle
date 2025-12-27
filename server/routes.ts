@@ -115,7 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User Management for Master Admin
   app.post("/api/admin/users", authenticateAdmin, async (req, res) => {
     try {
-      if (req.admin.role !== 'master') {
+      if ((req as any).admin.role !== 'master') {
         return res.status(403).json({ message: "Only Master Admin can create users" });
       }
 
@@ -148,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/users", authenticateAdmin, async (req, res) => {
     try {
-      if (req.admin.role !== 'master') {
+      if ((req as any).admin.role !== 'master') {
         return res.status(403).json({ message: "Access denied" });
       }
       const users = await Admin.find({ role: 'admin' }).populate('assignedRestaurant');
@@ -272,9 +272,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Try MongoDB first with quick timeout, then fallback
       try {
-        const query = req.admin.role === 'master' 
+        const query = (req as any).admin.role === 'master' 
           ? Restaurant.find().sort({ createdAt: -1 })
-          : Restaurant.find({ _id: req.admin.assignedRestaurant }).sort({ createdAt: -1 });
+          : Restaurant.find({ _id: (req as any).admin.assignedRestaurant }).sort({ createdAt: -1 });
 
         const restaurants = await Promise.race([
           query,
@@ -440,7 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/restaurants/:id", authenticateAdmin, async (req, res) => {
     try {
-      if (req.admin.role !== 'master') {
+      if ((req as any).admin.role !== 'master') {
         return res.status(403).json({ message: "Only Master Admin can edit restaurants" });
       }
       const { id } = req.params;
@@ -656,7 +656,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/restaurants/:id", authenticateAdmin, async (req, res) => {
     try {
-      if (req.admin.role !== 'master') {
+      if ((req as any).admin.role !== 'master') {
         return res.status(403).json({ message: "Only Master Admin can delete restaurants" });
       }
       const { id } = req.params;
