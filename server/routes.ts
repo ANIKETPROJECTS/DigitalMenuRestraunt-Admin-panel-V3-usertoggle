@@ -113,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Management for Master Admin
-  app.post("/api/admin/users", authenticateAdmin, async (req, res) => {
+  app.post("/api/admin/users", authenticateAdmin, async (req: any, res: any) => {
     try {
       if ((req as any).admin.role !== 'master') {
         return res.status(403).json({ message: "Only Master Admin can create users" });
@@ -141,19 +141,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await admin.save();
       res.status(201).json({ message: "Admin user created successfully", user: { id: admin._id, username: admin.username } });
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to create user" });
     }
   });
 
-  app.get("/api/admin/users", authenticateAdmin, async (req, res) => {
+  app.get("/api/admin/users", authenticateAdmin, async (req: any, res: any) => {
     try {
       if ((req as any).admin.role !== 'master') {
         return res.status(403).json({ message: "Access denied" });
       }
       const users = await Admin.find({ role: 'admin' }).populate('assignedRestaurant');
       res.json(users);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch users" });
     }
   });
