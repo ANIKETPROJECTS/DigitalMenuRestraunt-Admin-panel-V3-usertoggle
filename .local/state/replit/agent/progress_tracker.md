@@ -51,3 +51,11 @@
     - Password is hashed before storing in database using bcrypt
     - Frontend mutation now sends username, email, password (optional), and assignedRestaurant
     - Workflow restarted and verified - all fields fully editable
+[x] 19. Fixed "Unknown" restaurant display issue:
+    - Problem: After populate() in backend, assignedRestaurant becomes an object with restaurant details
+    - Display code was trying to match object against ID array, which always failed
+    - Fixed display logic: now checks if assignedRestaurant is object and shows name directly
+    - Fixed edit modal Select to handle both object and string ID formats
+    - Updated display: {typeof user.assignedRestaurant === 'object' ? user.assignedRestaurant?.name : 'Unknown'}
+    - Now correctly shows restaurant name from database instead of "Unknown"
+    - Workflow restarted and verified

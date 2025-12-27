@@ -328,7 +328,7 @@ export default function AdminDashboard() {
                             <span className="font-medium">Assigned Restaurant:</span>
                           </p>
                           <p className="text-sm text-blue-600 truncate">
-                            {restaurants?.find((r: any) => r._id === user.assignedRestaurant)?.name || 'Unknown'}
+                            {typeof user.assignedRestaurant === 'object' ? user.assignedRestaurant?.name : 'Unknown'}
                           </p>
                         </div>
                       )}
@@ -530,7 +530,7 @@ export default function AdminDashboard() {
             </div>
             <div className="space-y-2">
               <Label>Assign Restaurant</Label>
-              <Select value={editedUser.assignedRestaurant || "unassigned"} onValueChange={val => setEditedUser({...editedUser, assignedRestaurant: val === "unassigned" ? "" : val})}>
+              <Select value={typeof editedUser.assignedRestaurant === 'object' ? editedUser.assignedRestaurant?._id || "unassigned" : (editedUser.assignedRestaurant || "unassigned")} onValueChange={val => setEditedUser({...editedUser, assignedRestaurant: val === "unassigned" ? "" : val})}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a restaurant" />
                 </SelectTrigger>
