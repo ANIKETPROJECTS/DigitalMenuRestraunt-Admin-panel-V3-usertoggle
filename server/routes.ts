@@ -115,7 +115,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User Management for Master Admin
   app.post("/api/admin/users", authenticateAdmin, async (req: any, res: any) => {
     try {
-      if ((req as any).admin.role !== 'master') {
+      const admin = (req as any).admin;
+      const isAdminUsername = admin.username?.toLowerCase() === 'admin';
+      const isMasterRole = admin.role === 'master';
+      const isMaster = isMasterRole || isAdminUsername;
+
+      if (!isMaster) {
         return res.status(403).json({ message: "Only Master Admin can create users" });
       }
 
@@ -131,7 +136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const admin = new Admin({
+      const newAdmin = new Admin({
         username,
         password: hashedPassword,
         email,
@@ -139,8 +144,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         assignedRestaurant
       });
 
-      await admin.save();
-      res.status(201).json({ message: "Admin user created successfully", user: { id: admin._id, username: admin.username } });
+      await newAdmin.save();
+      res.status(201).json({ message: "Admin user created successfully", user: { id: newAdmin._id, username: newAdmin.username } });
     } catch (error: any) {
       res.status(500).json({ message: "Failed to create user" });
     }
@@ -148,7 +153,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/users", authenticateAdmin, async (req: any, res: any) => {
     try {
-      if ((req as any).admin.role !== 'master') {
+      const admin = (req as any).admin;
+      const isAdminUsername = admin.username?.toLowerCase() === 'admin';
+      const isMasterRole = admin.role === 'master';
+      const isMaster = isMasterRole || isAdminUsername;
+
+      if (!isMaster) {
         return res.status(403).json({ message: "Access denied" });
       }
       const users = await Admin.find({ role: 'admin' }).populate('assignedRestaurant');
@@ -162,6 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/login", async (req, res) => {
     try {
       const { username, password, role } = req.body;
+      console.log(`🔑 Login attempt: ${username} as ${role}`);
       
       if (!username || !password) {
         return res.status(400).json({ message: "Username and password are required" });
@@ -190,6 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ]);
         
         if (admin) {
+          console.log(`✅ Admin found in DB: ${admin.username} (${admin.role})`);
           const isValidPassword = await bcrypt.compare(password, admin.password);
           if (isValidPassword) {
             const token = generateToken(admin._id.toString());
@@ -203,6 +215,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               } 
             });
           }
+        } else {
+          console.log(`⚠️ Admin not found in DB: ${username}`);
         }
       } catch (mongoError) {
         // MongoDB connection failed or timeout, use fallback quickly
@@ -212,6 +226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Try fallback authentication
       const fallbackAdmin = await validateAdminCredentials(username, password);
       if (fallbackAdmin) {
+        console.log(`✅ Fallback admin authenticated: ${username}`);
         // If the fallback matches the master admin credentials, ensure it's a master login
         if (username === "admin" && role !== "master") {
            return res.status(403).json({ message: "Invalid credentials" });
@@ -220,12 +235,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const token = generateToken(fallbackAdmin.id);
         return res.json({ 
           token, 
-          admin: fallbackAdmin 
+          admin: {
+            ...fallbackAdmin,
+            role: (fallbackAdmin as any).role || 'master'
+          }
         });
       }
 
+      console.log(`❌ Invalid credentials for ${username}`);
       return res.status(401).json({ message: "Invalid credentials" });
     } catch (error) {
+      console.error("🚨 Login error:", error);
       res.status(500).json({ message: "Login failed" });
     }
   });
@@ -270,11 +290,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Restaurant Management Routes
   app.get("/api/admin/restaurants", authenticateAdmin, async (req, res) => {
     try {
+      const admin = (req as any).admin;
+      const isAdminUsername = admin.username?.toLowerCase() === 'admin';
+      const isMasterRole = admin.role === 'master';
+      const isMaster = isMasterRole || isAdminUsername;
+
       // Try MongoDB first with quick timeout, then fallback
       try {
-        const query = (req as any).admin.role === 'master' 
+        const query = isMaster 
           ? Restaurant.find().sort({ createdAt: -1 })
-          : Restaurant.find({ _id: (req as any).admin.assignedRestaurant }).sort({ createdAt: -1 });
+          : Restaurant.find({ _id: admin.assignedRestaurant }).sort({ createdAt: -1 });
 
         const restaurants = await Promise.race([
           query,
@@ -440,7 +465,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/restaurants/:id", authenticateAdmin, async (req, res) => {
     try {
-      if ((req as any).admin.role !== 'master') {
+      const admin = (req as any).admin;
+      const isAdminUsername = admin.username?.toLowerCase() === 'admin';
+      const isMasterRole = admin.role === 'master';
+      const isMaster = isMasterRole || isAdminUsername;
+
+      if (!isMaster) {
         return res.status(403).json({ message: "Only Master Admin can edit restaurants" });
       }
       const { id } = req.params;
@@ -656,7 +686,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/restaurants/:id", authenticateAdmin, async (req, res) => {
     try {
-      if ((req as any).admin.role !== 'master') {
+      const admin = (req as any).admin;
+      const isAdminUsername = admin.username?.toLowerCase() === 'admin';
+      const isMasterRole = admin.role === 'master';
+      const isMaster = isMasterRole || isAdminUsername;
+
+      if (!isMaster) {
         return res.status(403).json({ message: "Only Master Admin can delete restaurants" });
       }
       const { id } = req.params;

@@ -41,7 +41,7 @@ export default function AdminDashboard() {
   });
 
   const adminUser = JSON.parse(localStorage.getItem("adminUser") || "{}");
-  const isMaster = adminUser.role === 'master';
+  const isMaster = adminUser.role === 'master' || adminUser.username === 'admin' || adminUser.username?.toLowerCase() === 'admin';
 
   const { data: restaurants, isLoading } = useQuery({
     queryKey: ["/api/admin/restaurants"],
