@@ -38,3 +38,10 @@
     - Nodemailer transporter configured in server/routes.ts
     - OTP email sending function ready for use
     - Application running successfully with email configuration
+[x] 36. Verified .env file configuration for email credentials
+    - Confirmed dotenv.config() loads .env file at server startup
+    - Email credentials automatically injected into process.env
+    - Nodemailer uses process.env.EMAIL_USER and process.env.EMAIL_PASS
+    - Workflow restarted and confirmed loading: [dotenv@17.2.1] injecting env from .env
+    - Email credentials will be used every time the app starts
+    - Ready for OTP email sending functionality
