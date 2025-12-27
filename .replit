@@ -40,3 +40,9 @@ outputType = "webview"
 
 [agent]
 expertMode = true
+
+[userenv]
+
+[userenv.shared]
+EMAIL_USER = "raneaniket23@gmail.com"
+EMAIL_PASS = "wirurvuovthjxogh"

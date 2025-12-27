@@ -32,3 +32,9 @@
 [x] 32. Added query invalidation for user creation to ensure dashboard reflects new users immediately
 [x] 33. Reverted forced refreshes and ensured proper state updates via programmatic navigation and query invalidation
 [x] 34. Re-installed cross-env package after session restart (Dec 27, 2024) - workflow running successfully
+[x] 35. Set up email environment variables (EMAIL_USER and EMAIL_PASS) for OTP functionality
+    - EMAIL_USER: raneaniket23@gmail.com
+    - EMAIL_PASS: stored securely in environment
+    - Nodemailer transporter configured in server/routes.ts
+    - OTP email sending function ready for use
+    - Application running successfully with email configuration
