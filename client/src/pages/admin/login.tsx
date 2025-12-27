@@ -5,18 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Crown, Shield } from "lucide-react";
+import { Crown, Shield, User, ShieldCheck } from "lucide-react";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("admin");
   const { toast } = useToast();
 
   const loginMutation = useMutation({
-    mutationFn: async (credentials: { username: string; password: string }) => {
+    mutationFn: async (credentials: { username: string; password: string; role: string }) => {
       return await apiRequest("/api/admin/login", {
         method: "POST",
         body: JSON.stringify(credentials),
@@ -50,7 +52,7 @@ export default function AdminLogin() {
       });
       return;
     }
-    loginMutation.mutate({ username, password });
+    loginMutation.mutate({ username, password, role });
   };
 
   return (
@@ -71,6 +73,19 @@ export default function AdminLogin() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
+          <Tabs defaultValue="admin" onValueChange={setRole} className="w-full mb-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="admin" className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Admin User
+              </TabsTrigger>
+              <TabsTrigger value="master" className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4" />
+                Master Admin
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username" className="text-sm font-medium text-gray-700">
@@ -82,7 +97,7 @@ export default function AdminLogin() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base"
-                placeholder="Enter your username"
+                placeholder={`Enter your ${role} username`}
                 required
               />
             </div>
@@ -105,7 +120,7 @@ export default function AdminLogin() {
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 sm:py-3 text-sm sm:text-base mt-6"
               disabled={loginMutation.isPending}
             >
-              {loginMutation.isPending ? "Signing in..." : "Sign In"}
+              {loginMutation.isPending ? "Signing in..." : `Sign In as ${role === 'admin' ? 'Admin' : 'Master Admin'}`}
             </Button>
           </form>
         </CardContent>
