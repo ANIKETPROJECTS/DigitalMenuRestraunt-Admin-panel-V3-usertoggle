@@ -59,6 +59,12 @@ const adminSchema = new mongoose.Schema({
   maxRestaurants: {
     type: Number,
     default: 10
+  },
+  // Multi-user support
+  assignedRestaurant: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Restaurant',
+    required: false
   }
 }, {
   timestamps: true

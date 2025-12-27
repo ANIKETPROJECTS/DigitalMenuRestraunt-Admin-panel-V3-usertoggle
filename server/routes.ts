@@ -112,6 +112,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User Management for Master Admin
+  app.post("/api/admin/users", authenticateAdmin, async (req, res) => {
+    try {
+      if (req.admin.role !== 'master') {
+        return res.status(403).json({ message: "Only Master Admin can create users" });
+      }
+
+      const { username, password, email, assignedRestaurant } = req.body;
+      
+      if (!username || !password || !email || !assignedRestaurant) {
+        return res.status(400).json({ message: "All fields are required including restaurant assignment" });
+      }
+
+      const existingAdmin = await Admin.findOne({ $or: [{ username }, { email }] });
+      if (existingAdmin) {
+        return res.status(400).json({ message: "Username or email already exists" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const admin = new Admin({
+        username,
+        password: hashedPassword,
+        email,
+        role: 'admin',
+        assignedRestaurant
+      });
+
+      await admin.save();
+      res.status(201).json({ message: "Admin user created successfully", user: { id: admin._id, username: admin.username } });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
+  app.get("/api/admin/users", authenticateAdmin, async (req, res) => {
+    try {
+      if (req.admin.role !== 'master') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const users = await Admin.find({ role: 'admin' }).populate('assignedRestaurant');
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
   // Admin Authentication Routes
   app.post("/api/admin/login", async (req, res) => {
     try {
@@ -226,8 +272,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Try MongoDB first with quick timeout, then fallback
       try {
+        const query = req.admin.role === 'master' 
+          ? Restaurant.find().sort({ createdAt: -1 })
+          : Restaurant.find({ _id: req.admin.assignedRestaurant }).sort({ createdAt: -1 });
+
         const restaurants = await Promise.race([
-          Restaurant.find().sort({ createdAt: -1 }),
+          query,
           new Promise((_, reject) => 
             setTimeout(() => reject(new Error("MongoDB timeout")), 5000)
           )
@@ -390,6 +440,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/restaurants/:id", authenticateAdmin, async (req, res) => {
     try {
+      if (req.admin.role !== 'master') {
+        return res.status(403).json({ message: "Only Master Admin can edit restaurants" });
+      }
       const { id } = req.params;
       const { name, description, address, phone, email, image, website, mongoUri, customTypes, isActive } = req.body;
 
@@ -603,6 +656,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/restaurants/:id", authenticateAdmin, async (req, res) => {
     try {
+      if (req.admin.role !== 'master') {
+        return res.status(403).json({ message: "Only Master Admin can delete restaurants" });
+      }
       const { id } = req.params;
       
       // Try MongoDB first with quick timeout, then fallback
