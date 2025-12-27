@@ -49,8 +49,20 @@ export default function AdminDashboard() {
     assignedRestaurant: ""
   });
 
+  const [lastAdminUser, setLastAdminUser] = useState<string>("");
   const adminUser = JSON.parse(localStorage.getItem("adminUser") || "{}");
   const isMaster = adminUser.role === 'master' || adminUser.username === 'admin' || adminUser.username?.toLowerCase() === 'admin';
+
+  // Invalidate queries when the logged-in admin user changes (e.g., switching from regular admin to master admin)
+  useEffect(() => {
+    const currentAdminId = adminUser._id || adminUser.id || "";
+    if (lastAdminUser && lastAdminUser !== currentAdminId) {
+      console.log(`👤 Admin user changed from ${lastAdminUser} to ${currentAdminId} - invalidating cache`);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/restaurants"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    }
+    setLastAdminUser(currentAdminId);
+  }, [adminUser._id, adminUser.id, lastAdminUser]);
 
   const { data: restaurants, isLoading } = useQuery({
     queryKey: ["/api/admin/restaurants"],
@@ -137,6 +149,8 @@ export default function AdminDashboard() {
       setEditUserModalOpen(false);
       setEditingUser(null);
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      // Also invalidate restaurants in case the assigned restaurant changed
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/restaurants"] });
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message || "Failed to update user", variant: "destructive" });
