@@ -332,9 +332,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 requiresOtp: true,
                 message: "OTP sent to your registered email"
               });
-            } catch (emailError) {
+            } catch (emailError: any) {
               console.error("Failed to send OTP email:", emailError);
-              return res.status(500).json({ message: "Failed to send OTP email" });
+              const errorMessage = emailError.code === 'EAUTH' 
+                ? "Email authentication failed. Please check your App Password settings."
+                : "Failed to send OTP email. Please try again later.";
+              return res.status(500).json({ message: errorMessage });
             }
           }
         } else {
