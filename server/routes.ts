@@ -124,12 +124,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Enforce Master Admin logic:
       // If the username is 'admin', it MUST be a master admin login attempt.
       if (username === "admin" && role !== "master") {
-        return res.status(403).json({ message: "Master account must login through the Master Admin tab" });
+        return res.status(403).json({ message: "Invalid credentials" });
       }
       
       // If logging in as master, the username MUST be 'admin'
       if (role === "master" && username !== "admin") {
-        return res.status(403).json({ message: "Only the main admin account can login as Master Admin" });
+        return res.status(403).json({ message: "Invalid credentials" });
       }
 
       // Try MongoDB first with quick timeout, then fallback
@@ -168,7 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (fallbackAdmin) {
         // If the fallback matches the master admin credentials, ensure it's a master login
         if (username === "admin" && role !== "master") {
-           return res.status(403).json({ message: "Master account must login through the Master Admin tab" });
+           return res.status(403).json({ message: "Invalid credentials" });
         }
 
         const token = generateToken(fallbackAdmin.id);
