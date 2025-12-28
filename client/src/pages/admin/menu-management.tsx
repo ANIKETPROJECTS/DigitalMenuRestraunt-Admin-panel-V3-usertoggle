@@ -51,6 +51,7 @@ export default function MenuManagement() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -421,54 +422,85 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
       return;
     }
 
-    try {
-      // Convert menu items to Excel format with same columns as import template
-      const excelData = menuItems.map((item: MenuItem) => ({
-        Name: item.name,
-        Description: item.description,
-        Price: item.price.toString(),
-        Category: item.category,
-        IsVeg: item.isVeg ? "TRUE" : "FALSE",
-        Image: item.image || "",
-        IsAvailable: item.isAvailable ? "TRUE" : "FALSE",
-      }));
+    setIsExporting(true);
+    console.log(`Starting export of ${menuItems.length} menu items...`);
 
-      // Create workbook and worksheet
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Menu Items");
+    // Use setTimeout to allow UI to update with loading state
+    setTimeout(() => {
+      try {
+        console.log("Converting menu items to Excel format...");
+        
+        // Helper function to truncate text to Excel's 32,767 character limit
+        const truncateText = (text: string | undefined, maxLength: number = 32000): string => {
+          if (!text) return "";
+          const str = text.toString();
+          if (str.length > maxLength) {
+            console.warn(`Truncating text from ${str.length} to ${maxLength} characters`);
+            return str.substring(0, maxLength);
+          }
+          return str;
+        };
 
-      // Set column widths
-      const columnWidths = [
-        { wch: 25 }, // Name
-        { wch: 30 }, // Description
-        { wch: 12 }, // Price
-        { wch: 20 }, // Category
-        { wch: 10 }, // IsVeg
-        { wch: 40 }, // Image
-        { wch: 12 }, // IsAvailable
-      ];
-      worksheet['!cols'] = columnWidths;
+        // Convert menu items to Excel format with same columns as import template
+        const excelData = menuItems.map((item: MenuItem, index: number) => {
+          console.log(`Processing item ${index + 1}/${menuItems.length}: ${item.name}`);
+          return {
+            Name: truncateText(item.name),
+            Description: truncateText(item.description),
+            Price: truncateText(item.price.toString()),
+            Category: truncateText(item.category),
+            IsVeg: item.isVeg ? "TRUE" : "FALSE",
+            Image: truncateText(item.image || ""),
+            IsAvailable: item.isAvailable ? "TRUE" : "FALSE",
+          };
+        });
 
-      // Generate filename with restaurant name and date
-      const date = new Date().toISOString().split('T')[0];
-      const filename = `${restaurant?.name}-menu-${date}.xlsx`;
+        console.log("Creating workbook and worksheet...");
+        // Create workbook and worksheet
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Menu Items");
 
-      // Write file
-      XLSX.writeFile(workbook, filename);
+        // Set column widths
+        const columnWidths = [
+          { wch: 25 }, // Name
+          { wch: 30 }, // Description
+          { wch: 12 }, // Price
+          { wch: 20 }, // Category
+          { wch: 10 }, // IsVeg
+          { wch: 40 }, // Image
+          { wch: 12 }, // IsAvailable
+        ];
+        worksheet['!cols'] = columnWidths;
 
-      toast({
-        title: "Success",
-        description: `Exported ${menuItems.length} menu items`,
-      });
-    } catch (error) {
-      console.error("Export error:", error);
-      toast({
-        title: "Export Failed",
-        description: "Failed to export menu items. Please try again.",
-        variant: "destructive",
-      });
-    }
+        // Generate filename with restaurant name and date
+        const date = new Date().toISOString().split('T')[0];
+        const filename = `${restaurant?.name}-menu-${date}.xlsx`;
+
+        console.log(`Writing Excel file: ${filename}`);
+        // Write file
+        XLSX.writeFile(workbook, filename);
+
+        console.log(`Export completed successfully! File: ${filename}`);
+        toast({
+          title: "Success",
+          description: `Exported ${menuItems.length} menu items`,
+        });
+      } catch (error) {
+        console.error("Export error:", error);
+        console.error("Error details:", {
+          message: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : "No stack trace",
+        });
+        toast({
+          title: "Export Failed",
+          description: "Failed to export menu items. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsExporting(false);
+      }
+    }, 100);
   };
 
   if (isLoading) {
@@ -535,12 +567,15 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
               
               <Button
                 onClick={handleExport}
+                disabled={isExporting}
                 variant="outline"
-                className="border-purple-600 text-purple-600 hover:bg-purple-50 w-full sm:w-auto"
+                className="border-purple-600 text-purple-600 hover:bg-purple-50 disabled:opacity-50 w-full sm:w-auto"
                 data-testid="button-export-menu"
               >
-                <Download className="w-4 h-4 mr-2" />
-                <span className="truncate">Export</span>
+                <Download className={`w-4 h-4 mr-2 ${isExporting ? 'animate-spin' : ''}`} />
+                <span className="truncate">
+                  {isExporting ? 'Exporting...' : 'Export'}
+                </span>
               </Button>
               
               <Button
