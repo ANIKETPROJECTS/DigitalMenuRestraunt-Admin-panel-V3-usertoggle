@@ -838,8 +838,8 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
           {/* Sort and Filter Controls - Simplified */}
           <div className="flex gap-2 mb-8 flex-wrap">
             {/* Sort Dropdown */}
-            <Select value={`${sortBy}-${sortOrder}`} onValueChange={(value: string) => {
-              const [sort, order] = value.split('-') as [string, "asc" | "desc"];
+            <Select value={`${sortBy}:${sortOrder}`} onValueChange={(value: string) => {
+              const [sort, order] = value.split(':') as [string, "asc" | "desc"];
               setSortBy(sort as any);
               setSortOrder(order);
             }}>
@@ -848,19 +848,19 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
                 <span>Sort</span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-                <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-                <SelectItem value="price-asc">Price (Low-High)</SelectItem>
-                <SelectItem value="price-desc">Price (High-Low)</SelectItem>
-                <SelectItem value="category-asc">Category (A-Z)</SelectItem>
-                <SelectItem value="category-desc">Category (Z-A)</SelectItem>
-                <SelectItem value="recent-desc">Recent First</SelectItem>
+                <SelectItem value="name:asc">Name (A-Z)</SelectItem>
+                <SelectItem value="name:desc">Name (Z-A)</SelectItem>
+                <SelectItem value="price:asc">Price (Low-High)</SelectItem>
+                <SelectItem value="price:desc">Price (High-Low)</SelectItem>
+                <SelectItem value="category:asc">Category (A-Z)</SelectItem>
+                <SelectItem value="category:desc">Category (Z-A)</SelectItem>
+                <SelectItem value="recent:desc">Recent First</SelectItem>
               </SelectContent>
             </Select>
 
             {/* Filter Dropdown */}
-            <Select value={`${filterVeg}-${filterAvailable}`} onValueChange={(value: string) => {
-              const [veg, available] = value.split('-');
+            <Select value={`${filterVeg}:${filterAvailable}`} onValueChange={(value: string) => {
+              const [veg, available] = value.split(':');
               setFilterVeg(veg as any);
               setFilterAvailable(available as any);
             }}>
@@ -869,13 +869,13 @@ else if (restaurant?.mongoUri && menuItems && menuItems.length > 0) {
                 <span>Filter</span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all-all">All Items</SelectItem>
-                <SelectItem value="veg-all">Vegetarian</SelectItem>
-                <SelectItem value="non-veg-all">Non-Vegetarian</SelectItem>
-                <SelectItem value="all-available">Available Items</SelectItem>
-                <SelectItem value="all-unavailable">Unavailable Items</SelectItem>
-                <SelectItem value="veg-available">Vegetarian & Available</SelectItem>
-                <SelectItem value="non-veg-available">Non-Veg & Available</SelectItem>
+                <SelectItem value="all:all">All Items</SelectItem>
+                <SelectItem value="veg:all">Vegetarian</SelectItem>
+                <SelectItem value="non-veg:all">Non-Vegetarian</SelectItem>
+                <SelectItem value="all:available">Available Items</SelectItem>
+                <SelectItem value="all:unavailable">Unavailable Items</SelectItem>
+                <SelectItem value="veg:available">Vegetarian & Available</SelectItem>
+                <SelectItem value="non-veg:available">Non-Veg & Available</SelectItem>
               </SelectContent>
             </Select>
 
