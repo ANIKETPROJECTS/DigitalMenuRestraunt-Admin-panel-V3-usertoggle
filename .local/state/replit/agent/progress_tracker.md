@@ -68,3 +68,8 @@
     - White login card positioned with z-10 for proper layering
     - Workflow restarted and verified - login page displays with elegant background
     - Professional restaurant dining ambiance now visible on login page
+[x] 44. Removed dark overlay from background image (Dec 29, 2024)
+    - Removed the dark gradient overlay to show the full restaurant image
+    - White login card still stands out clearly with its shadow effect
+    - Background image now displays in its full vibrant colors
+    - Workflow restarted and verified - clean, professional look achieved

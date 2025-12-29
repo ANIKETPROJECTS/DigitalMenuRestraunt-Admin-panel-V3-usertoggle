@@ -116,10 +116,7 @@ export default function AdminLogin() {
         backgroundAttachment: "fixed",
       }}
     >
-      {/* Dark overlay for better text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/40" />
-      
-      <Card className="w-full max-w-md mx-auto border border-blue-200 bg-white shadow-xl relative z-10">
+      <Card className="w-full max-w-md mx-auto border border-blue-200 bg-white shadow-xl">
         <CardHeader className="text-center px-4 sm:px-6">
           <div className="flex justify-center mb-4">
             <div className="relative">
