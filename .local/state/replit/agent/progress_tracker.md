@@ -54,3 +54,10 @@
     - Toggle is only visible and functional for Master Admin users
     - Settings are persisted in MongoDB and fallback storage
     - Workflow restarted and verified with hot reload
+[x] 42. Fixed OTP verification logic to respect the toggle setting (Dec 29, 2024)
+    - Updated login route to check otpMasterAdminEnabled flag before sending OTP
+    - For MongoDB admin: Checks flag for master admin, restaurant OTP for regular admins
+    - For fallback admin: Checks otpMasterAdminEnabled before generating/sending OTP
+    - Master admin can now login without OTP when toggle is disabled
+    - Regular admins still respect restaurant OTP settings
+    - Workflow restarted and verified working correctly

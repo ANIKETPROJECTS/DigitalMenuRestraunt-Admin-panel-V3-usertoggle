@@ -332,13 +332,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`✅ Admin found in DB: ${admin.username} (${admin.role})`);
           const isValidPassword = await bcrypt.compare(password, admin.password);
           if (isValidPassword) {
-            // Check if OTP is globally enabled for the restaurant
-            const restaurant = await Restaurant.findById(admin.assignedRestaurant);
-            const isOtpEnabled = restaurant ? restaurant.otpEnabled !== false : true;
+            // Check if OTP should be required
+            let otpRequired = false;
+            
+            // For master admin, check otpMasterAdminEnabled flag
+            if (admin.role === 'master' || username === 'admin') {
+              otpRequired = admin.otpMasterAdminEnabled === true;
+            } else {
+              // For regular admins, check restaurant OTP setting
+              const restaurant = await Restaurant.findById(admin.assignedRestaurant);
+              otpRequired = restaurant ? restaurant.otpEnabled !== false : true;
+            }
 
             // Check if email is available for OTP
-            if (!admin.email || !isOtpEnabled) {
-              console.warn(`⚠️ Admin ${username} skipping OTP (Email: ${!!admin.email}, OTP Enabled: ${isOtpEnabled})`);
+            if (!admin.email || !otpRequired) {
+              console.warn(`⚠️ Admin ${username} skipping OTP (Email: ${!!admin.email}, OTP Required: ${otpRequired})`);
               const token = generateToken(admin._id.toString());
               return res.json({ 
                 token, 
@@ -386,23 +394,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (fallbackAdmin) {
         console.log(`✅ Fallback admin authenticated: ${username}`);
         
-        // Handle OTP for master admin (fallback or DB)
-        const masterEmail = (fallbackAdmin as any).email || 'raneaniket23@gmail.com';
-        
-        // Generate OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        
-        // Ensure master admin exists in DB for OTP verification
+        // Ensure master admin exists in DB for settings and OTP storage
         let dbAdmin = await Admin.findOne({ username: 'admin' }) as any;
         if (!dbAdmin) {
           console.log("Creating master admin in DB for OTP storage");
           dbAdmin = new Admin({
             username: 'admin',
             password: await bcrypt.hash(password, 10),
-            email: masterEmail,
+            email: (fallbackAdmin as any).email || 'raneaniket23@gmail.com',
             role: 'master'
           });
+          await dbAdmin.save();
         }
+        
+        // Check if OTP is enabled for master admin
+        if (!dbAdmin.otpMasterAdminEnabled) {
+          console.warn(`⚠️ Master admin OTP is disabled`);
+          const token = generateToken(dbAdmin._id.toString());
+          return res.json({ 
+            token, 
+            admin: { 
+              id: dbAdmin._id, 
+              username: dbAdmin.username, 
+              email: dbAdmin.email, 
+              role: dbAdmin.role 
+            } 
+          });
+        }
+        
+        // Handle OTP for master admin (fallback or DB)
+        const masterEmail = dbAdmin.email || (fallbackAdmin as any).email || 'raneaniket23@gmail.com';
+        
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
         
         dbAdmin.otp = otp;
         dbAdmin.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
