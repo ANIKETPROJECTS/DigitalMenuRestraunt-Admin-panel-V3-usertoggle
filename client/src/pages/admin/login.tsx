@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Crown, Shield, User, ShieldCheck } from "lucide-react";
-import backgroundImage from "@assets/admin_bg_image_1766987541263.jpg";
+import backgroundImage from "./../../../../assets/admin_bg_image_1766987541263.jpg";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
